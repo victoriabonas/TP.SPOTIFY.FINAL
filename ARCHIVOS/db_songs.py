@@ -116,6 +116,9 @@ def get_songs():
     finally:
         conn.close()
 
+
+
+
 def add_song(id, song_id, song, artist, popularity, genre, explicit, feat, feat_with):
     conn = sqlite3.connect('songs.db')
     c = conn.cursor()

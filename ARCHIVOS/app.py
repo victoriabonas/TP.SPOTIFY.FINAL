@@ -1,13 +1,12 @@
 from flask import Flask, jsonify, request
-#flask para crear la app web, jsonify convierte dics de python a formato json y request permite acceder a los datos enviados en las solicitudes http
 import db_songs
 import requests
 import base64
 from spotipy.oauth2 import SpotifyClientCredentials
 import spotipy
-import json
 
-app = Flask(__name__) #creo instancia de flask y se crea la app
+
+app = Flask(__name__)
 
 @app.route("/")
 def hello():
@@ -15,7 +14,7 @@ def hello():
 
 @app.route("/songs", methods=["GET"])
 def get_songs():
-    songs = db_songs.get_songs() #obtiene las canciones de la db
+    songs = db_songs.get_songs()
     clean_songs = []
     for song in songs:
         clean_songs.append({
@@ -29,10 +28,10 @@ def get_songs():
             "feat": song["feat"],
             "feat_with": song["feat_with"]
         })
-    return jsonify(clean_songs), 200 #devuelve la lista en json para que pueda ser leido por la api
+    return jsonify(clean_songs), 200
 
 @app.route("/songs/<int:id>", methods=["GET"])
-def get_song(id): #obtener una cancion por el id
+def get_song(id):
     songs=db_songs.get_songs()
     for song in songs:
         if song["id"] == id:
@@ -71,9 +70,11 @@ def obtener_id(nombre_artista, nombre_cancion):
     else:
         return None
 
+
 @app.route("/agregar", methods=["POST"])
-def add_song(): #toma la info para agregarla a la db con post
-    song_details = request.get_json() #creo lo que el cliente agrega como cancion nueva. get json para que se imprima 
+def add_song():
+    song_details = request.get_json()
+    # Obtener el ID de la canción desde Spotify
     song_id = obtener_id(song_details["artist"], song_details["song"])
     id=len(db_songs.get_songs()) + 1
     track_info = sp.track(obtener_id(song_details["artist"], song_details["song"]))
@@ -103,7 +104,6 @@ def update_song(id):
     songs = db_songs.get_songs()
     for song in songs:
         if song["id"] == id:
-            song["song"] = song_details["song"]
             song["popularity"] = song_details["popularity"]
             song["explicit"] = song_details["explicit"]
             song["feat"] = song_details["feat"]
@@ -125,3 +125,4 @@ if __name__ == "__main__":
     db_songs.create_tables()
     db_songs.insert_songs()
     app.run(debug=True, port=4000)
+
